@@ -1,3 +1,6 @@
+export const patternPrimeiroGrau = /\s*f\((-?\d+)\)\s*=\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;
+export const patternSegundoGrau = /\s*f\((-?\d+)\) = (-?\d+)x² ([-+\/]) (-?\d+)x ([-+\/]) (-?\d+)$/;
+
 function lexer(input) {
     const tokens = [];
     let current = 0;
@@ -21,6 +24,7 @@ function lexer(input) {
         tokens.push({ type: 'numero', value });
         continue;
       }
+      
   
       if (/[+-/*]/.test(char)) {
         // Token para operadores.
@@ -64,7 +68,7 @@ function lexer(input) {
         continue;
       }
   
-      // Se o caractere não corresponder a nada, gera um erro.
+    // Se o caractere não corresponder a nada, gera um erro.
       throw new Error('Caractere não reconhecido: ' + char);
     }
   
@@ -78,13 +82,10 @@ function lexer(input) {
 
     const tokens = lexer(funcaoInicial);
     console.log(tokens);
-  
-    const pattern = /\s*f\((-?\d+)\)\s*=\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;
-    //const pattern2 = /\s*f(\(-?\d+\))\s*=\s*(-?\d+x²)\s*([-+*\/])\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;
-    const match = funcaoInicial.match(pattern);
+    const match = funcaoInicial.match(patternPrimeiroGrau);
   
     if (!match) {
-      throw new Error('Expressão inválida. Use o formato "f(+-NÚMERO) = +-NÚMEROx operação_matemática +-NÚMERO".');
+      return;
     }
   
     console.log('X:', match[1]);
@@ -108,7 +109,7 @@ function lexer(input) {
         break;
       case '/':
         if (c === 0) {
-          throw new Error('Divisão por zero não é permitida.');
+          return;
         }
         resultado = a / (b * c);
         break;
@@ -122,71 +123,112 @@ function lexer(input) {
   export const funcaoDeSegundoGrau = (funcaoInicial)=>{
     return parserFuncaoDeSegundoGrau(funcaoInicial)
   }
+
   function parserFuncaoDeSegundoGrau(funcaoInicial) {
     const tokens = lexer(funcaoInicial);
-  
-    const pattern = /\s*f(\(-?\d+\))\s*=\s*(-?\d+x²)\s*([-+*\/])\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;;
-    const match = funcaoInicial.match(pattern);
+    console.log(tokens);
+    const match = funcaoInicial.match(patternSegundoGrau);
   
     if (!match) {
-      throw new Error('Expressão inválida. Use o formato "f(NÚMERO) = NÚMEROx² operação_matemática NÚMEROx operação_matemática NÚMERO".');
+      return;
     }
   
-    const a = parseInt(match[1], 10);
-    const b = parseInt(match[2], 10);
+    // Extrai os coeficientes a, b e c da expressão
+    const a = parseInt(match[2], 10);
     const operacaoMatematica1 = match[3];
-    const c = parseInt(match[4], 10);
+    const b = parseInt(match[4], 10);
     const operacaoMatematica2 = match[5];
-    const d = parseInt(match[6], 10);
+    const c = parseInt(match[6], 10);
   
-    // Realize as operações matemáticas com base nos operadores
-    let resultado;
+    // Calcula a função de segundo grau f(x) = ax² + bx + c para x = 4
+    const x = parseInt(match[1], 10);
+    
+    console.log(`a: ${a}`);
+    console.log(`op1: ${operacaoMatematica1}`);
+    console.log(`b: ${b}`);
+    console.log(`op2: ${operacaoMatematica2}`);
+    console.log(`c: ${c}`);
+
+    console.log(`x: ${x}`);
+
+    let resultado = a * x ^ 2 + b * x + c;
     switch (operacaoMatematica1) {
+      //Casos positivos
       case '+':
-        resultado = a + b;
+        switch(operacaoMatematica2){
+          case '+':
+            resultado = a * x ^ 2 + b * x + c;
+          break;
+          case '-':
+            resultado = a * x ^ 2 + b * x - c;
+          break;
+          case '*':
+            resultado = a * x ^ 2 + b * x * c;
+          break;
+          case '/':
+            resultado = a * x ^ 2 + b * x / c;
+          break;
+        }
         break;
+      //Casos negativos
       case '-':
-        resultado = a - b;
+        switch(operacaoMatematica2){
+          case '+':
+            resultado = a * x ^ 2 - b * x + c;
+          break;
+          case '-':
+            resultado = a * x ^ 2 - b * x - c;
+          break;
+          case '*':
+            resultado = a * x ^ 2 - b * x * c;
+          break;
+          case '/':
+            resultado = a * x ^ 2 - b * x / c;
+          break;
+        }
         break;
+      //Mult
       case '*':
-        resultado = a * b;
+        switch(operacaoMatematica2){
+          case '+':
+            resultado = a * x ^ 2 * b * x + c;
+          break;
+          case '-':
+            resultado = a * x ^ 2 * b * x - c;
+          break;
+          case '*':
+            resultado = a * x ^ 2 * b * x * c;
+          break;
+          case '/':
+            resultado = a * x ^ 2 * b * x / c;
+          break;
+        }
         break;
+      //Div
       case '/':
-        if (b === 0) {
+        if (c === 0) {
           throw new Error('Divisão por zero não é permitida.');
         }
-        resultado = a / b;
+        switch(operacaoMatematica2){
+          case '+':
+            resultado = a * x ^ 2 / b * x + c;
+          break;
+          case '-':
+            resultado = a * x ^ 2 / b * x - c;
+          break;
+          case '*':
+            resultado = a * x ^ 2 / b * x * c;
+          break;
+          case '/':
+            resultado = a * x ^ 2 / b * x / c;
+          break;
+        }
         break;
       default:
         throw new Error('Operação matemática inválida.');
     }
-  
-    switch (operacaoMatematica2) {
-      case '+':
-        resultado = resultado + (c + d);
-        break;
-      case '-':
-        resultado = resultado - (c + d);
-        break;
-      case '*':
-        resultado = resultado * (c + d);
-        break;
-      case '/':
-        if (c + d === 0) {
-          throw new Error('Divisão por zero não é permitida.');
-        }
-        resultado = resultado / (c + d);
-        break;
-      default:
-        throw new Error('Operação matemática inválida.');
-    }
+    
+    
   
     return resultado;
-  }
-  const funcaoInicial = 'f(3)=4x*2';
-  try {
-    const resultado = parserFuncaoDePrimeiroGrau(funcaoInicial);
-    console.log('Y:', resultado);
-  } catch (error) {
-    console.error('Erro:', error.message);
   }

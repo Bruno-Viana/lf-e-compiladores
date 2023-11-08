@@ -1,25 +1,21 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
-import { funcaoDePrimeiroGrau, funcaoDeSegundoGrau } from './utils/parser';
+import {funcaoDePrimeiroGrau, funcaoDeSegundoGrau} from './utils/parser';
 import './App.css';
 
 
 function App() {
   const [input, setInput] = useState("");
-  // Button Text
+
+  const patternPrimeiroGrau = /\s*f\((-?\d+)\)\s*=\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;
+  const patternSegundoGrau = /^f\((-?\d+)\) = (-?\d+)x² ([-/*+\/]) (-?\d+)x ([-/*+\/]) (-?\d+)$/
+
   const [resultado, setResultado] = useState<any | null>(null);
 
   const handleSubmit = (event: { preventDefault: () => void; }) => {
-    try {
-      event.preventDefault();
-      const test = funcaoDePrimeiroGrau(input);
-      //TODO testar se é primeiro grau ou segundo usando a tokenização
-      // funcaoDeSegundoGrau
-      setResultado("Resultado: " + test);    
-    } catch (error) {
-      setResultado("Não foi possível fazer a análise dos valores inseridos, tente no formato: f(3)=4x*2")
-    }
-  
+     event.preventDefault();
+     if(input.match(patternPrimeiroGrau))  setResultado("Resultado: " + funcaoDePrimeiroGrau(input));
+     else if (input.match(patternSegundoGrau)) setResultado("Resultado: " + funcaoDeSegundoGrau(input));
+     else setResultado("Análise Léxica falhou, por favor use o formato f(6) = 12x + 25 ou f(2) = 42x² + 9x + 55 para funções de segundo grau");
   }
 
   return (
