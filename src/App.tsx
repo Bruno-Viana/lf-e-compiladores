@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import {funcaoDePrimeiroGrau, funcaoDeSegundoGrau} from './utils/parser';
+import {funcaoDePrimeiroGrau, funcaoDeSegundoGrau, patternPrimeiroGrau, patternSegundoGrau} from './utils/parser';
 import './App.css';
 
 
 function App() {
   const [input, setInput] = useState("");
-
-  const patternPrimeiroGrau = /\s*f\((-?\d+)\)\s*=\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;
-  const patternSegundoGrau = /^f\((-?\d+)\) = (-?\d+)x² ([-/*+\/]) (-?\d+)x ([-/*+\/]) (-?\d+)$/
 
   const [resultado, setResultado] = useState<any | null>(null);
 
