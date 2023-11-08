@@ -1,4 +1,4 @@
-export const patternPrimeiroGrau = /\s*f\((-?\d+)\)\s*=\s*(-?\d+x)\s*([-+*\/])\s*(-?\d+)/;
+export const patternPrimeiroGrau = /\s*f\((-?\d+)\)\s*=\s*(-?\d+)x\s*([-+*\/])\s*(-?\d+)/;
 export const patternSegundoGrau = /\s*f\((-?\d+)\) = (-?\d+)x² ([-+\/]) (-?\d+)x ([-+\/]) (-?\d+)$/;
 
 function lexer(input) {
@@ -88,8 +88,6 @@ function lexer(input) {
       return;
     }
   
-    console.log('X:', match[1]);
-  
     const a = parseInt(match[1], 10);
     const b = parseInt(match[2], 10);
     const operacaoMatematica = match[3];
@@ -99,10 +97,10 @@ function lexer(input) {
     let resultado;
     switch (operacaoMatematica) {
       case '+':
-        resultado = a + b * c;
+        resultado = a * b + c;
         break;
       case '-':
-        resultado = a - b * c;
+        resultado = a * b - c;
         break;
       case '*':
         resultado = a * b * c;
@@ -111,7 +109,7 @@ function lexer(input) {
         if (c === 0) {
           return;
         }
-        resultado = a / (b * c);
+        resultado = a * b / c;
         break;
       default:
         throw new Error('Operação matemática inválida.');
